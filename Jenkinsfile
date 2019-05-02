@@ -29,7 +29,7 @@ node{
  } 
  
  stage('DeployAppIntoTomcat'){
-  sh "cp $WORKSPACE/target/*.war /opt/apache-tomcat-9.0.19/webapps/"
+ sh "cp $WORKSPACE/target/*.war /opt/tomcat/apache-tomcat-9.0.17/webapps/"
   } 
   
    
