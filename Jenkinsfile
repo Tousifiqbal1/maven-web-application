@@ -1,48 +1,38 @@
-#!groovy
-
-properties([
+node{
+ 
+ properties([
     buildDiscarder(logRotator(numToKeepStr: '3')),
     pipelineTriggers([
         pollSCM('* * * * *')
     ])
 ])
 
+ def mavenHome = tool name: 'maven3.6.1', type: 'maven'
+ 
+ stage('CheckoutCode') {
+ git branch: 'master', credentialsId: '6486245e-c64c-4e1b-8aa5-c472bc7ad25f', url: 'https://github.com/MithunTechnologiesDevOps/maven-web-application.git'
+ }  
+  
+  stage('Build') {
+ 
+    sh "${mavenHome}/bin/mvn clean package"
+  }
 
-node('node1'){
-    def mavenHome = tool name: 'Maven3.1.1', type: 'maven'
+  stage('ExecuteSonarQubeReport') {
+ 
+ sh "${mavenHome}/bin/mvn sonar:sonar"
+ }     
+  
+  stage('UploadArtifactIntoNexus') {
+ 
+ sh "${mavenHome}/bin/mvn deploy"
+ } 
+ 
+ stage('DeployAppIntoTomcat'){
+  sh "cp $WORKSPACE/target/*.war /opt/apache-tomcat-9.0.19/webapps/"
+  } 
+  
+   
     
-    stage('Checkoutthecode'){
-     git branch: 'master', credentialsId: '07dd149d-4881-45a8-86ed-3cf7a77cccce', url: 'https://github.com/MithunTechnologiesDevOps/maven-web-application.git'   
-        
-    }
-    
-    stage('Build'){
-        
-      sh "${mavenHome}/bin/mvn clean package"
-    }
-    
-    stage('SoanrQubeReport'){
-        
-       sh "${mavenHome}/bin/mvn sonar:sonar" 
-    }
-    
-    stage('UploadArtifactsToNexus'){
-         sh "${mavenHome}/bin/mvn clean deploy" 
-    }
-    /*
-    stage('DeployIntoTomcat'){
-      sh "echo app is deploying"    
-      sh "cp $WORKSPACE/target/*.war /opt/apache-tomcat-9.0.16/webapps/"  
-      sh "echo App is deployed"
-    }
-    */
-    
-    stage('SendEmailNotification'){
-        mail bcc: 'devopstrainingblr@gmail.com', body: '''Build Done
-
-Regards,
-Mithun Technologies
-''', cc: 'devopstrainingblr@gmail.com', from: '', replyTo: '', subject: 'Build done', to: 'devopstrainingblr@gmail.com,mohan.unix87@gmail.com'
-    }
     
 }
