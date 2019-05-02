@@ -7,7 +7,7 @@ node{
     ])
 ])
 
- def mavenHome = tool name: 'maven3.6.1', type: 'maven'
+ def mavenHome = tool name: 'Maven3.6.1', type: 'maven'
  
  stage('CheckoutCode') {
  git branch: 'master', credentialsId: '6486245e-c64c-4e1b-8aa5-c472bc7ad25f', url: 'https://github.com/Tousifiqbal1/maven-web-application.git'
